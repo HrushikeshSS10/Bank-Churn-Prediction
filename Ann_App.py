@@ -7,7 +7,19 @@ import tensorflow as tf
 import pickle
 
 # Load the trained models
-model = tf.keras.models.load_model("model.h5", compile=False)
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+
+def build_model():
+    model = Sequential([
+        Dense(64, activation='relu', input_shape=(11,)),
+        Dense(32, activation='relu'),
+        Dense(1, activation='sigmoid')
+    ])
+    return model
+
+model = build_model()
+model.load_weights("model_weights.h5")
 
 # Load the encoders and scaler
 with open('label_encoder_gender.pkl', 'rb')as file:
