@@ -11,12 +11,18 @@ import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 
-# Rebuild the same architecture used during training
+# Build the architecture
 model = Sequential([
     Dense(64, activation='relu', input_shape=(11,)),
     Dense(32, activation='relu'),
     Dense(1, activation='sigmoid')
 ])
+
+# Build the model before loading weights
+model.build((None, 11))
+
+# Load trained weights
+model.load_weights("model.weights.h5")
 
 # Load trained weights
 model.load_weights("model.weights.h5")
