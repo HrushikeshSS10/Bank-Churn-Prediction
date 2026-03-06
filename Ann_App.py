@@ -7,7 +7,17 @@ import tensorflow as tf
 import pickle
 
 # Load the trained models
-model = tf.keras.models.load_model("model.h5", compile=False)
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+
+model = Sequential([
+    Dense(64, activation="relu", input_shape=(11,)),
+    Dense(32, activation="relu"),
+    Dense(1, activation="sigmoid")
+])
+
+model.load_weights("model.weights.h5")
 
 # Load the encoders and scaler
 with open('label_encoder_gender.pkl', 'rb')as file:
@@ -71,7 +81,6 @@ if st.button("Predict"):
         st.success("The customer is not likely to churn")
                                 
                             
-
 
 
 
