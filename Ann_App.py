@@ -2,14 +2,13 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder, StandardScaler, OneHotEncoder
-import tensorflow as tf
 import pickle
-
-# Load the trained models
+import tensorflow as tf
+from sklearn.preprocessing import LabelEncoder, StandardScaler, OneHotEncoder
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 
+# Load the trained models
 # Build the architecture
 model = Sequential([
     Dense(64, activation='relu', input_shape=(12,)),
@@ -29,14 +28,15 @@ model.load_weights("model.weights.h5")
 model.load_weights("model.weights.h5")
 
 # Load the encoders and scaler
-with open('label_encoder_gender.pkl', 'rb')as file:
-    label_encoder_gender=pickle.load(file)
-    
-with open('onehot_encoder_geo.pkl', 'rb')as file:
-    onehot_encoder_geo=pickle.load(file)
-    
-with open('scaler.pkl', 'rb')as file:
-    scaler=pickle.load(file)
+# Load encoders and scaler
+with open("label_encoder_gender.pkl", "rb") as file:
+    label_encoder_gender = pickle.load(file)
+
+with open("onehot_encoder_geo.pkl", "rb") as file:
+    onehot_encoder_geo = pickle.load(file)
+
+with open("scaler.pkl", "rb") as file:
+    scaler = pickle.load(file)
     
 # streamlit app
 st.title('Customer churn prediction for the Bank')
