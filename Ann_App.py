@@ -7,20 +7,21 @@ import tensorflow as tf
 import pickle
 
 # Load the trained models
-import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 
 # Build the architecture
 model = Sequential([
-    Dense(64, activation='relu', input_shape=(11,)),
+    Dense(64, activation='relu', input_shape=(12,)),
     Dense(32, activation='relu'),
     Dense(1, activation='sigmoid')
 ])
 
-# Build the model before loading weights
-model.build((None, 11))
+# Build model before loading weights
+model.build((None, 12))
 
+# Load trained weights
+model.load_weights("model.weights.h5")
 # Load trained weights
 model.load_weights("model.weights.h5")
 
