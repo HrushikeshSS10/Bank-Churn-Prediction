@@ -1,0 +1,11 @@
+scikit-learn
+pandas
+numpy
+tensorboard
+matplotlib
+streamlit
+nltk
+tensorflow
+yfinance
+plotly
+spacy
