@@ -7,7 +7,7 @@ import tensorflow as tf
 import pickle
 
 # Load the trained models
-model = tf.keras.models.load_model("model.h5")
+model = tf.keras.models.load_model("model.h5", compile=False)
 
 # Load the encoders and scaler
 with open('label_encoder_gender.pkl', 'rb')as file:
@@ -71,6 +71,7 @@ if st.button("Predict"):
         st.success("The customer is not likely to churn")
                                 
                             
+
 
 
 
