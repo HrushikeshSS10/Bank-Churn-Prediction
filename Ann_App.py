@@ -19,7 +19,7 @@ def build_model():
     return model
 
 model = build_model()
-model.load.weights("model_weights.h5")
+model.load.weights("model.weights.h5")
 
 # Load the encoders and scaler
 with open('label_encoder_gender.pkl', 'rb')as file:
