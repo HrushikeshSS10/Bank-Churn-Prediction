@@ -7,7 +7,11 @@ import tensorflow as tf
 import pickle
 
 # Load the trained models
-model = tf.keras.models.load_model("model.h5", compile=False)
+model = tf.keras.models.load_model(
+    "model.h5",
+    compile=False,
+    safe_mode=False
+)
 
 # Load the encoders and scaler
 with open('label_encoder_gender.pkl', 'rb')as file:
@@ -59,14 +63,16 @@ input_data=pd.concat([input_data.reset_index(drop=True), geo_encoded_df], axis=1
 input_data_scaled=scaler.transform(input_data)
 
 # predict churn
-prediction=model.predict(input_data_scaled)
-prediction_proba=prediction[0][0]
 if st.button("Predict"):
-    st.write(f'Churn Probability:{prediction_proba:.2f}')
-    if prediction_proba>0.5:
-        st.write('The customer is likely to churn')
+    prediction = model.predict(input_data_scaled)
+    prediction_proba = prediction[0][0]
+
+    st.subheader(f'Churn Probability: {prediction_proba:.2f}')
+
+    if prediction_proba > 0.5:
+        st.error("The customer is likely to churn")
     else:
-        st.write('The customer is not likely to churn')
+        st.success("The customer is not likely to churn")
                                 
                             
 
