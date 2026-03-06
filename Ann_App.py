@@ -1,97 +1,108 @@
-# Integraing ANN model with streamlit web app
+# Integrating ANN model with Streamlit web app
+
 import streamlit as st
 import numpy as np
 import pandas as pd
-import joblib
 import tensorflow as tf
+
 from sklearn.preprocessing import LabelEncoder, StandardScaler, OneHotEncoder
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 
-# Load the trained models
-# Build the architecture
+# -----------------------------
+# Load dataset to rebuild scaler
+# -----------------------------
+df = pd.read_csv("Churn_Modelling.csv")
+
+X = df.drop(["RowNumber","CustomerId","Surname","Exited"], axis=1)
+
+# Recreate encoders
+label_encoder_gender = LabelEncoder()
+X["Gender"] = label_encoder_gender.fit_transform(X["Gender"])
+
+onehot_encoder_geo = OneHotEncoder(sparse_output=False)
+geo_encoded = onehot_encoder_geo.fit_transform(X[["Geography"]])
+
+geo_encoded_df = pd.DataFrame(
+    geo_encoded,
+    columns=onehot_encoder_geo.get_feature_names_out(["Geography"])
+)
+
+X = pd.concat([X.drop("Geography", axis=1), geo_encoded_df], axis=1)
+
+# Recreate scaler
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# -----------------------------
+# Load ANN model
+# -----------------------------
 model = Sequential([
     Dense(64, activation='relu', input_shape=(12,)),
     Dense(32, activation='relu'),
     Dense(1, activation='sigmoid')
 ])
 
-# Build model before loading weights
-model.build((None, 12))
-
-# Load trained weights
-model.load_weights("model.weights.h5")
-# Load trained weights
 model.load_weights("model.weights.h5")
 
-# Load trained weights
-model.load_weights("model.weights.h5")
+# -----------------------------
+# Streamlit UI
+# -----------------------------
+st.title("Customer Churn Prediction")
 
-# Load the encoders and scaler
-# Load encoders and scaler
-label_encoder_gender = joblib.load("label_encoder_gender.joblib")
-onehot_encoder_geo = joblib.load("onehot_encoder_geo.joblib")
-scaler = joblib.load("scaler.joblib")
-    
-# streamlit app
-st.title('Customer churn prediction for the Bank')
+geography = st.selectbox("Geography", ["France","Germany","Spain"])
+gender = st.selectbox("Gender", ["Male","Female"])
 
-# user input
-geography=st.selectbox('Geography', onehot_encoder_geo.categories_[0])
-gender=st.selectbox('Gender', label_encoder_gender.classes_)
-age=st.slider('Age', 18, 92)
-balance=st.number_input('Balance')
+age = st.slider("Age", 18, 92)
+tenure = st.slider("Tenure", 0, 10)
 
-credit_score=st.number_input('Credit Score')
-estimated_salary=st.number_input('Estimated Salary')
-tenure=st.slider('Tenure', 0, 10)
-num_of_products=st.slider('Number of products', 1, 4)
-has_cr_card=st.selectbox('Has Credit card', [0,1])
-is_active_member=st.selectbox('Is Active member', [0,1])
+balance = st.number_input("Balance")
+credit_score = st.number_input("Credit Score")
+estimated_salary = st.number_input("Estimated Salary")
 
-# Prepare the input data
-input_data=pd.DataFrame({
-    'CreditScore':[credit_score],
-    'Gender':[label_encoder_gender.transform([gender])[0]],
-    'Age':[age],
-    'Tenure':[tenure],
-    'Balance':[balance],
-    'NumOfProducts':[num_of_products],
-    'HasCrCard':[has_cr_card],
-    'IsActiveMember':[is_active_member],
-    'EstimatedSalary':[estimated_salary]
+num_of_products = st.slider("Number of Products", 1, 4)
+has_cr_card = st.selectbox("Has Credit Card", [0,1])
+is_active_member = st.selectbox("Is Active Member", [0,1])
+
+# -----------------------------
+# Prepare input
+# -----------------------------
+gender_encoded = label_encoder_gender.transform([gender])[0]
+
+geo_encoded = onehot_encoder_geo.transform([[geography]])
+
+geo_encoded_df = pd.DataFrame(
+    geo_encoded,
+    columns=onehot_encoder_geo.get_feature_names_out(["Geography"])
+)
+
+input_data = pd.DataFrame({
+    "CreditScore":[credit_score],
+    "Gender":[gender_encoded],
+    "Age":[age],
+    "Tenure":[tenure],
+    "Balance":[balance],
+    "NumOfProducts":[num_of_products],
+    "HasCrCard":[has_cr_card],
+    "IsActiveMember":[is_active_member],
+    "EstimatedSalary":[estimated_salary]
 })
 
-# One-hot encode 'geography'
-geo_encoded=onehot_encoder_geo.transform([[geography]]).toarray()
-geo_encoded_df=pd.DataFrame(geo_encoded, columns=onehot_encoder_geo.get_feature_names_out(['Geography']))
+input_data = pd.concat([input_data, geo_encoded_df], axis=1)
 
-# Combine one-hot encoded columns with input data
-input_data=pd.concat([input_data.reset_index(drop=True), geo_encoded_df], axis=1)
+input_scaled = scaler.transform(input_data)
 
-# scale the input data
-input_data_scaled=scaler.transform(input_data)
-
-# predict churn
+# -----------------------------
+# Prediction
+# -----------------------------
 if st.button("Predict"):
-    prediction = model.predict(input_data_scaled)
-    prediction_proba = prediction[0][0]
 
-    st.subheader(f'Churn Probability: {prediction_proba:.2f}')
+    prediction = model.predict(input_scaled)
+    prob = prediction[0][0]
 
-    if prediction_proba > 0.5:
-        st.error("The customer is likely to churn")
+    st.subheader(f"Churn Probability: {prob:.2f}")
+
+    if prob > 0.5:
+        st.error("Customer is likely to churn")
     else:
-        st.success("The customer is not likely to churn")
-                                
-                            
-
-
-
-
-
-
-
-
-
-
+        st.success("Customer is not likely to churn")
