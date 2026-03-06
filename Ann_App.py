@@ -11,12 +11,14 @@ import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 
+# Rebuild the same architecture used during training
 model = Sequential([
-    Dense(64, activation="relu", input_shape=(11,)),
-    Dense(32, activation="relu"),
-    Dense(1, activation="sigmoid")
+    Dense(64, activation='relu', input_shape=(11,)),
+    Dense(32, activation='relu'),
+    Dense(1, activation='sigmoid')
 ])
 
+# Load trained weights
 model.load_weights("model.weights.h5")
 
 # Load the encoders and scaler
